@@ -4,6 +4,8 @@ import java.util.Scanner;
 
 public class Main {
 
+    static Scanner sc = new Scanner(System.in);
+
     public static void toBinary(int number) {
         int bin = 0;
         int rem = 1;
@@ -37,16 +39,13 @@ public class Main {
         System.out.println("Conversion result: " + Integer.toHexString(number));
     }
 
-    public static void main(String[] args) {
-        // write your code here
-
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Enter number in decimal system:");
+    static void fromDecimal(){
+        System.out.println("Enter number in decimal system: ");
         int number = sc.nextInt();
-        System.out.println("Enter target base:");
+        System.out.println("Enter target base: ");
         int target = sc.nextInt();
 
-        switch (target) {
+        switch (target){
             case 2:
                 toBinary(number);
                 break;
@@ -57,5 +56,75 @@ public class Main {
                 toHexa(number);
                 break;
         }
+        System.out.println();
+    }
+
+    public static void menu() {
+        loop:
+        while (true) {
+            System.out.println("Do you want to convert /from decimal or /to decimal? (To quit type /exit)");
+            String choice = sc.nextLine();
+
+            switch (choice) {
+                case "/from":
+                    fromDecimal();
+                    break;
+                case "/to":
+                    toDecimal();
+                    break;
+                case "/exit":
+                    break loop;
+            }
+        }
+    }
+
+    static void binToDec(String number) {
+        Long num = Long.parseLong(number);
+        int decimalNumber = 0;
+        int i = 0;
+        Long remainder;
+
+        while (num != 0) {
+            remainder = num % 10;
+            num /= 10;
+            decimalNumber += (remainder * Math.pow(2.0, (double) i));
+            ++i;
+        }
+        System.out.println("Conversion to decimal result: " + decimalNumber);
+    }
+
+    static void octalToDec(String number) {
+        System.out.println("Conversion to decimal result: " + Integer.parseInt(number, 8));
+    }
+
+    static void hexToDec(String number) {
+        System.out.println("Conversion to decimal result: " + Integer.parseInt(number, 16));
+    }
+
+    static void toDecimal() {
+        System.out.println("Enter source number: ");
+        String src = sc.nextLine();
+        System.out.println("Enter source base: ");
+        int base = sc.nextInt();
+
+        switch (base) {
+            case 2:
+                binToDec(src);
+                break;
+            case 8:
+                octalToDec(src);
+                break;
+            case 16:
+                hexToDec(src);
+                break;
+        }
+
+    }
+
+    public static void main(String[] args) {
+        // write your code here
+        menu();
+
+
     }
 }
