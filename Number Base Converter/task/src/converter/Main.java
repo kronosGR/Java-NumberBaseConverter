@@ -1,28 +1,29 @@
 package converter;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Scanner;
 
 public class Main {
 
     static Scanner sc = new Scanner(System.in);
 
-    public static void toBinary(int number) {
-        int bin = 0;
-        int rem = 1;
-        int step = 1;
-        int i = 1;
-        int num = number;
+    static String toBinary(String number) {
+        BigInteger bin = BigInteger.ZERO;
+        BigInteger rem = BigInteger.ONE;
+        BigInteger i = BigInteger.ONE;
+        BigInteger num = new BigInteger(number);
 
-        while (num != 0) {
-            rem = num % 2;
-            num /= 2;
-            bin += rem * i;
-            i *= 10;
+        while (num != BigInteger.ZERO) {
+            rem = num.mod(BigInteger.valueOf(2));
+            num = num.divide(BigInteger.valueOf(2));
+            bin = bin.add(rem.multiply(i));
+            i = i.multiply(BigInteger.TEN);
         }
-        System.out.println("Conversion result: " + bin);
+        return String.valueOf(bin);
     }
 
-    public static void toOctal(int number) {
+    static int toOctal(int number) {
         int dec = number;
         int octal = 0;
         int i = 1;
@@ -32,93 +33,88 @@ public class Main {
             dec = dec / 8;
             i *= 10;
         }
-        System.out.println("Conversion result: " + octal);
+        return octal;
     }
 
-    public static void toHexa(int number) {
-        System.out.println("Conversion result: " + Integer.toHexString(number));
+    static String toAnyBase(int toAnybase, String number) {
+        return BigDecimal.valueOf(Long.parseLong(number)).toBigInteger().toString(toAnybase);
     }
 
-    static void fromDecimal(){
-        System.out.println("Enter number in decimal system: ");
-        int number = sc.nextInt();
-        System.out.println("Enter target base: ");
-        int target = sc.nextInt();
+    static String binToDec(String number) {
+        BigInteger num = new BigDecimal(number).toBigInteger();
+        BigDecimal decimalNumber = BigDecimal.ZERO;
+        int i = 0;
+        BigInteger remainder;
 
-        switch (target){
-            case 2:
-                toBinary(number);
-                break;
-            case 8:
-                toOctal(number);
-                break;
-            case 16:
-                toHexa(number);
-                break;
+        while (!num.equals(BigInteger.ZERO)) {
+            remainder = num.mod(BigInteger.TEN);
+            num = num.divide(BigInteger.TEN);
+            decimalNumber = decimalNumber.add(new BigDecimal(remainder.multiply(BigInteger.TWO.pow(i))));
+            ++i;
         }
-        System.out.println();
+        return decimalNumber.toString();
     }
+
+    static String fromAnyBaseToDec(int fromBase, String number) {
+        return new BigInteger(number, fromBase).toString();
+    }
+
+    static int octalToDec(String number) {
+        return Integer.parseInt(number, 8);
+    }
+
+    static void convert(int src, int trg, String num) {
+        String dec ;
+        if (src == 2) {
+            dec = binToDec(num);
+        } else if (src > 2 && src < 37) {
+            dec = fromAnyBaseToDec(src, num);
+        } else {
+            dec = "0";
+        }
+
+        String res;
+        if (src == trg) {
+            res = String.valueOf(dec);
+        } else {
+            if (trg == 2) {
+                res = String.valueOf(toBinary(dec));
+            } else if (trg > 2 && src < 37) {
+                res = toAnyBase(trg, dec);
+            } else {
+                res = "0";
+            }
+        }
+        System.out.println("Conversion result: " + res);
+
+    }
+
 
     public static void menu() {
         loop:
         while (true) {
-            System.out.println("Do you want to convert /from decimal or /to decimal? (To quit type /exit)");
+            System.out.println("Enter two numbers in format: {source base} {target base} (To quit type /exit)");
             String choice = sc.nextLine();
 
-            switch (choice) {
-                case "/from":
-                    fromDecimal();
-                    break;
-                case "/to":
-                    toDecimal();
-                    break;
-                case "/exit":
-                    break loop;
+            if (choice.equals("/exit")) {
+                break;
             }
+
+            String[] bases = choice.split(" ");
+            String srcBase = bases[0];
+            String tgtBase = bases[1];
+
+            while (true) {
+                System.out.println("Enter number in base " + srcBase + " to convert to base " + tgtBase + " (To go back type /back)");
+                String ch = sc.nextLine();
+                if (ch.equals("/back")) {
+                    break;
+                }
+
+                convert(Integer.parseInt(srcBase), Integer.parseInt(tgtBase), ch);
+            }
+
         }
-    }
-
-    static void binToDec(String number) {
-        Long num = Long.parseLong(number);
-        int decimalNumber = 0;
-        int i = 0;
-        Long remainder;
-
-        while (num != 0) {
-            remainder = num % 10;
-            num /= 10;
-            decimalNumber += (remainder * Math.pow(2.0, (double) i));
-            ++i;
-        }
-        System.out.println("Conversion to decimal result: " + decimalNumber);
-    }
-
-    static void octalToDec(String number) {
-        System.out.println("Conversion to decimal result: " + Integer.parseInt(number, 8));
-    }
-
-    static void hexToDec(String number) {
-        System.out.println("Conversion to decimal result: " + Integer.parseInt(number, 16));
-    }
-
-    static void toDecimal() {
-        System.out.println("Enter source number: ");
-        String src = sc.nextLine();
-        System.out.println("Enter source base: ");
-        int base = sc.nextInt();
-
-        switch (base) {
-            case 2:
-                binToDec(src);
-                break;
-            case 8:
-                octalToDec(src);
-                break;
-            case 16:
-                hexToDec(src);
-                break;
-        }
-
     }
 
     public static void main(String[] args) {
